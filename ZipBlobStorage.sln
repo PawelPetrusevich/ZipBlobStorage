@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2046
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipBlobStorage", "ZipBlobStorage\ZipBlobStorage.csproj", "{8F4EA611-6DF5-4AB8-921A-4C2162236221}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipBlobStorage.Tests", "ZipBlobStorage.Tests\ZipBlobStorage.Tests.csproj", "{B1473809-EE56-41E3-A63D-B989F04638E6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8F4EA611-6DF5-4AB8-921A-4C2162236221} = {8F4EA611-6DF5-4AB8-921A-4C2162236221}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8F4EA611-6DF5-4AB8-921A-4C2162236221}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F4EA611-6DF5-4AB8-921A-4C2162236221}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F4EA611-6DF5-4AB8-921A-4C2162236221}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F4EA611-6DF5-4AB8-921A-4C2162236221}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1473809-EE56-41E3-A63D-B989F04638E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1473809-EE56-41E3-A63D-B989F04638E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1473809-EE56-41E3-A63D-B989F04638E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1473809-EE56-41E3-A63D-B989F04638E6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DF46F13A-EB9C-46C9-8560-4F99F836C871}
+	EndGlobalSection
+EndGlobal
