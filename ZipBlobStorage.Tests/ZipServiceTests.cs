@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 using NUnit.Framework;
 
@@ -13,9 +17,18 @@ namespace ZipBlobStorage.Tests
     public class ZipServiceTests
     {
         [Test]
+        [STAThread]
         public void LoadTest()
         {
+
+            OpenFileDialog dialog = new OpenFileDialog();
             var path = @"C:\Users\pavel_petrusevich\Desktop\download.jpg";
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                path = dialog.FileName;
+            }
+
             var zipService = new ZipService(new AzureStorageRepository());
 
             List<PreZipEntryModel> collection = new List<PreZipEntryModel>();
@@ -27,6 +40,9 @@ namespace ZipBlobStorage.Tests
             zipService.UploadFile(collection);
 
             reader.Close();
+
+
+
         }
 
         [Test]

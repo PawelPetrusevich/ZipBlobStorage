@@ -14,6 +14,8 @@ namespace ZipBlobStorage.Services
     {
         private readonly IAzureStorageRepository _azureStorageRepository;
 
+        private const string ZIP_FILE_NAME = "compressedFile.zip";
+
         public ZipService(IAzureStorageRepository azureStorageRepository)
         {
             this._azureStorageRepository = azureStorageRepository;
@@ -38,19 +40,13 @@ namespace ZipBlobStorage.Services
                     }
                 }
 
-                _azureStorageRepository.UploadFile(memoryStream, "compressedFile.zip", MimeMapping.GetMimeMapping(".zip"));
-
-                using (var writer = new FileStream(@"C:\Users\pavel_petrusevich\Desktop\thumb.zip", FileMode.Create))
-                {
-                    memoryStream.Seek(0, SeekOrigin.Begin);
-                    memoryStream.CopyTo(writer);
-                }
+                _azureStorageRepository.UploadZip(memoryStream, ZIP_FILE_NAME, MimeMapping.GetMimeMapping(".zip"));
             }
         }
 
         public void OpenZip()
         {
-            using (FileStream stream = new FileStream(@"C:\Users\pavel_petrusevich\Desktop\thumb.zip", FileMode.Open))
+            using (var stream = _azureStorageRepository.DownloadZip(ZIP_FILE_NAME))
             {
                 using (var zipFiles = new ZipArchive(stream))
                 {
@@ -66,7 +62,7 @@ namespace ZipBlobStorage.Services
         {
             using (var entryStream = entry.Open())
             {
-                using (FileStream stream = new FileStream(@"C:\Users\pavel_petrusevich\Desktop\" + Guid.NewGuid() + ".jpg", FileMode.Create))
+                using (FileStream stream = new FileStream($"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\{entry.FullName}", FileMode.Create))
                 {
                     entryStream.CopyTo(stream);
                 }

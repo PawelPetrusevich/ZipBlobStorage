@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.IO;
 
 using Microsoft.WindowsAzure.Storage;
@@ -9,21 +10,32 @@ namespace ZipBlobStorage.Repository
 {
     public class AzureStorageRepository : IAzureStorageRepository
     {
-        private readonly CloudBlobContainer _container;
+        private readonly CloudBlobClient client;
 
+        private CloudBlobContainer _container;
 
         public AzureStorageRepository()
         {
             CloudStorageAccount account = CloudStorageAccount.DevelopmentStorageAccount;
-            CloudBlobClient client = account.CreateCloudBlobClient();
-            _container = client.GetContainerReference("demo");
+            client = account.CreateCloudBlobClient();
         }
 
-        public void UploadFile(Stream stream, string fileName, string mimeType)
+        public void UploadZip(Stream stream, string fileName, string mimeType)
         {
+            _container = client.GetContainerReference("zip");
+            _container.CreateIfNotExists();
             var blob = PrepareBlob(fileName, mimeType);
-            stream.Position = 0;
+            stream.Seek(0, SeekOrigin.Begin);
             blob.UploadFromStream(stream);
+        }
+
+        public Stream DownloadZip(string fileName)
+        {
+            _container = client.GetContainerReference("zip");
+            var blob = _container.GetBlockBlobReference(fileName);
+            var resultStream = new MemoryStream();
+            blob.DownloadToStream(resultStream);
+            return resultStream;
         }
 
         private CloudBlockBlob PrepareBlob(string fileName, string mimeType)

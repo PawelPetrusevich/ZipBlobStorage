@@ -13,10 +13,10 @@ namespace ZipBlobStorage.Models
         {
         }
 
-        public PreZipEntryModel(FileStream fileStrim)
+        public PreZipEntryModel(FileStream fileStream)
         {
-            FileStream = fileStrim;
-            FileName = fileStrim.Name.Split('\\').Last();
+            FileStream = fileStream;
+            FileName = fileStream.Name.Split('\\').Last();
         }
 
         ~PreZipEntryModel()

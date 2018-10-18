@@ -4,6 +4,8 @@ namespace ZipBlobStorage.Repository
 {
     public interface IAzureStorageRepository
     {
-        void UploadFile(Stream stream, string fileName, string mimeType);
+        void UploadZip(Stream stream, string fileName, string mimeType);
+
+        Stream DownloadZip(string fileName);
     }
 }
