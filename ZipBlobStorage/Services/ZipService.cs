@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 using ZipBlobStorage.Models;
@@ -14,39 +15,39 @@ namespace ZipBlobStorage.Services
     {
         private readonly IAzureStorageRepository _azureStorageRepository;
 
-        private const string ZIP_FILE_NAME = "compressedFile.zip";
-
         public ZipService(IAzureStorageRepository azureStorageRepository)
         {
             this._azureStorageRepository = azureStorageRepository;
         }
 
-        public void UploadFile(IEnumerable<PreZipEntryModel> entryModels)
+        public async Task UploadFile(RequestModel filePaths)
         {
             using (var memoryStream = new MemoryStream())
             {
                 using (ZipArchive zip = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
                 {
-                    foreach (var preZipEntryModel in entryModels)
+                    foreach (var filePath in filePaths.Images)
                     {
-                        var fileName = CreateFileName(preZipEntryModel.FileName.Split('\\').Last());
+                        var fileName = CreateFileName(filePath);
                         var entry = zip.CreateEntry(fileName, CompressionLevel.Optimal);
                         using (var binaryWriter = new BinaryWriter(entry.Open()))
                         {
-                            var fileInByte = new byte[preZipEntryModel.FileStream.Length];
-                            preZipEntryModel.FileStream.Read(fileInByte, 0, (int)preZipEntryModel.FileStream.Length);
+                            var fileInByte = await _azureStorageRepository.LoadImageAsBytesAsync(filePath);
                             binaryWriter.Write(fileInByte);
                         }
                     }
                 }
 
-                _azureStorageRepository.UploadZip(memoryStream, ZIP_FILE_NAME, MimeMapping.GetMimeMapping(".zip"));
+                var zipFileName = CreateZipFileName(filePaths.DealershipId);
+
+                await _azureStorageRepository.UploadZipAsync(memoryStream, zipFileName, MimeMapping.GetMimeMapping(zipFileName)).ConfigureAwait(false);
             }
         }
 
+        // TODO unzip
         public void OpenZip()
         {
-            using (var stream = _azureStorageRepository.DownloadZip(ZIP_FILE_NAME))
+            using (var stream = _azureStorageRepository.DownloadZip("TODO"))
             {
                 using (var zipFiles = new ZipArchive(stream))
                 {
@@ -58,6 +59,7 @@ namespace ZipBlobStorage.Services
             }
         }
 
+        // TODO unzip
         private void CreateFile(ZipArchiveEntry entry)
         {
             using (var entryStream = entry.Open())
@@ -72,7 +74,12 @@ namespace ZipBlobStorage.Services
 
         private string CreateFileName(string fileName)
         {
-            return $"{fileName.Split('.').First()}-{Guid.NewGuid()}.{fileName.Split('.').Last()}";
+            return $"{fileName.Split('.').First()}/{Guid.NewGuid()}.{fileName.Split('.').Last()}";
+        }
+
+        private string CreateZipFileName(string dealershipId)
+        {
+            return $"{dealershipId}-{Guid.NewGuid()}.zip";
         }
     }
 }

@@ -27,18 +27,22 @@ namespace ZipBlobStorageConsole
             {
                 case 1:
                     OpenFileDialog dialog = new OpenFileDialog();
-                    string path = string.Empty;
+                    dialog.Multiselect = true;
+                    string[] filePaths = new string[0];
 
                     if (dialog.ShowDialog() == DialogResult.OK)
                     {
-                        path = dialog.FileName;
+                        filePaths = dialog.FileNames;
                     }
 
                     List<PreZipEntryModel> collection = new List<PreZipEntryModel>();
 
-                    FileStream reader = new FileStream(path, FileMode.Open);
+                    foreach (var path in filePaths)
+                    {
+                        FileStream reader = new FileStream(path, FileMode.Open);
 
-                    collection.Add(new PreZipEntryModel(reader));
+                        collection.Add(new PreZipEntryModel(reader));
+                    }
 
                     zipService.UploadFile(collection);
                     break;

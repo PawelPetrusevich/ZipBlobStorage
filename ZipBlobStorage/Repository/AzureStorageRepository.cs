@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
+using System.Threading.Tasks;
 
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
@@ -20,13 +22,24 @@ namespace ZipBlobStorage.Repository
             client = account.CreateCloudBlobClient();
         }
 
-        public void UploadZip(Stream stream, string fileName, string mimeType)
+        public async Task UploadZipAsync(Stream stream, string fileName, string mimeType)
         {
             _container = client.GetContainerReference("zip");
             _container.CreateIfNotExists();
             var blob = PrepareBlob(fileName, mimeType);
             stream.Seek(0, SeekOrigin.Begin);
-            blob.UploadFromStream(stream);
+            await blob.UploadFromStreamAsync(stream);
+        }
+
+        public async Task<byte[]> LoadImageAsBytesAsync(string fileName)
+        {
+            _container = client.GetContainerReference("images");
+            var blob = _container.GetBlockBlobReference(fileName);
+            blob.FetchAttributes();
+            var length = blob.Properties.Length;
+            var byteArray = new byte[length];
+            await blob.DownloadToByteArrayAsync(byteArray, 0);
+            return byteArray;
         }
 
         public Stream DownloadZip(string fileName)
