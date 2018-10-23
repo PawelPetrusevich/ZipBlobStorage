@@ -39,15 +39,13 @@ namespace ZipBlobStorage.Repository
             await blob.UploadFromStreamAsync(stream);
         }
 
-        public async Task<byte[]> LoadImageAsBytesAsync(string fileName)
+        public async Task LoadImageAsync(string fileName, Stream entryStream)
         {
             _container = client.GetContainerReference("images");
             var blob = _container.GetBlockBlobReference(fileName);
             blob.FetchAttributes();
-            var length = blob.Properties.Length;
-            var byteArray = new byte[length];
-            await blob.DownloadToByteArrayAsync(byteArray, 0);
-            return byteArray;
+
+            await blob.DownloadToStreamAsync(entryStream);
         }
 
         public Stream DownloadZip(string fileName, string containerName)

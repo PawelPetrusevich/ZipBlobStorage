@@ -44,10 +44,10 @@ namespace ZipBlobStorage.Services
                     {
                         var fileName = CreateFileName(filePath);
                         var entry = zip.CreateEntry(fileName, CompressionLevel.Optimal);
-                        using (var binaryWriter = new BinaryWriter(entry.Open()))
+
+                        using (var entryStream = entry.Open())
                         {
-                            var fileInByte = await _azureStorageRepository.LoadImageAsBytesAsync(filePath);
-                            binaryWriter.Write(fileInByte);
+                            await _azureStorageRepository.LoadImageAsync(filePath, entryStream);
                         }
                     }
                 }
@@ -65,11 +65,6 @@ namespace ZipBlobStorage.Services
             {
                 using (var zipFiles = new ZipArchive(stream))
                 {
-                    if (zipFiles.Entries == null || zipFiles.Entries.Any())
-                    {
-                        throw new Exception($"{nameof(zipName)} is empty.");
-                    }
-
                     foreach (var zipFilesEntry in zipFiles.Entries)
                     {
                         await CreateFile(zipFilesEntry);
