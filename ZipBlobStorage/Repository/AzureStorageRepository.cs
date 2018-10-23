@@ -22,12 +22,20 @@ namespace ZipBlobStorage.Repository
             client = account.CreateCloudBlobClient();
         }
 
-        public async Task UploadZipAsync(Stream stream, string fileName, string mimeType)
+        public async Task UploadZipAsync(Stream stream, string fileName, string mimeType, string containerName)
         {
-            _container = client.GetContainerReference("zip");
+            _container = client.GetContainerReference(containerName);
             _container.CreateIfNotExists();
             var blob = PrepareBlob(fileName, mimeType);
             stream.Seek(0, SeekOrigin.Begin);
+            await blob.UploadFromStreamAsync(stream);
+        }
+
+        public async Task UploadImageAsync(Stream stream, string fileName, string mimeType, string containerName)
+        {
+            _container = client.GetContainerReference(containerName);
+            _container.CreateIfNotExists();
+            var blob = PrepareBlob(fileName, mimeType);
             await blob.UploadFromStreamAsync(stream);
         }
 
@@ -42,9 +50,9 @@ namespace ZipBlobStorage.Repository
             return byteArray;
         }
 
-        public Stream DownloadZip(string fileName)
+        public Stream DownloadZip(string fileName, string containerName)
         {
-            _container = client.GetContainerReference("zip");
+            _container = client.GetContainerReference(containerName);
             var blob = _container.GetBlockBlobReference(fileName);
             var resultStream = new MemoryStream();
             blob.DownloadToStream(resultStream);

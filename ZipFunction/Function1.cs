@@ -30,6 +30,10 @@ namespace ZipFunction
 
             await zipService.UploadFile(result).ConfigureAwait(false);
 
+            var zipName = "TODO.zip";
+
+            await zipService.UnZipArchive(zipName);
+
             return null;
         }
     }

@@ -13,6 +13,10 @@ namespace ZipBlobStorage.Services
 {
     public class ZipService : IZipService
     {
+        private const string IN_CONTAINER_NAME = "in-container";
+
+        private const string OUT_CONTAINER_NAME = "out-container";
+
         private readonly IAzureStorageRepository _azureStorageRepository;
 
         public ZipService(IAzureStorageRepository azureStorageRepository)
@@ -20,13 +24,23 @@ namespace ZipBlobStorage.Services
             this._azureStorageRepository = azureStorageRepository;
         }
 
-        public async Task UploadFile(RequestModel filePaths)
+        public async Task UploadFile(RequestModel archiveModel)
         {
+            if (archiveModel == null)
+            {
+                throw new ArgumentNullException($"{nameof(archiveModel)} can not be null.");
+            }
+
+            if (archiveModel.Images == null || !archiveModel.Images.Any())
+            {
+                throw new ArgumentException($"{nameof(archiveModel)} can not be empty.");
+            }
+
             using (var memoryStream = new MemoryStream())
             {
                 using (ZipArchive zip = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
                 {
-                    foreach (var filePath in filePaths.Images)
+                    foreach (var filePath in archiveModel.Images)
                     {
                         var fileName = CreateFileName(filePath);
                         var entry = zip.CreateEntry(fileName, CompressionLevel.Optimal);
@@ -38,36 +52,38 @@ namespace ZipBlobStorage.Services
                     }
                 }
 
-                var zipFileName = CreateZipFileName(filePaths.DealershipId);
+                var zipFileName = CreateZipFileName(archiveModel.DealershipId);
 
-                await _azureStorageRepository.UploadZipAsync(memoryStream, zipFileName, MimeMapping.GetMimeMapping(zipFileName)).ConfigureAwait(false);
+                await _azureStorageRepository.UploadZipAsync(memoryStream, zipFileName, MimeMapping.GetMimeMapping(zipFileName), IN_CONTAINER_NAME).ConfigureAwait(false);
             }
         }
 
         // TODO unzip
-        public void OpenZip()
+        public async Task UnZipArchive(string zipName)
         {
-            using (var stream = _azureStorageRepository.DownloadZip("TODO"))
+            using (var stream = _azureStorageRepository.DownloadZip(zipName, IN_CONTAINER_NAME))
             {
                 using (var zipFiles = new ZipArchive(stream))
                 {
+                    if (zipFiles.Entries == null || zipFiles.Entries.Any())
+                    {
+                        throw new Exception($"{nameof(zipName)} is empty.");
+                    }
+
                     foreach (var zipFilesEntry in zipFiles.Entries)
                     {
-                        CreateFile(zipFilesEntry);
+                        await CreateFile(zipFilesEntry);
                     }
                 }
             }
         }
 
         // TODO unzip
-        private void CreateFile(ZipArchiveEntry entry)
+        private async Task CreateFile(ZipArchiveEntry entry)
         {
             using (var entryStream = entry.Open())
             {
-                using (FileStream stream = new FileStream($"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\{entry.FullName}", FileMode.Create))
-                {
-                    entryStream.CopyTo(stream);
-                }
+                await _azureStorageRepository.UploadImageAsync(entryStream, entry.Name, MimeMapping.GetMimeMapping(entry.Name), OUT_CONTAINER_NAME).ConfigureAwait(false);
             }
         }
 
@@ -79,7 +95,7 @@ namespace ZipBlobStorage.Services
 
         private string CreateZipFileName(string dealershipId)
         {
-            return $"{dealershipId}-{Guid.NewGuid()}.zip";
+            return $"{dealershipId}.zip";
         }
     }
 }

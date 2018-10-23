@@ -5,7 +5,14 @@ VisualStudioVersion = 15.0.28010.2046
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipBlobStorage", "ZipBlobStorage\ZipBlobStorage.csproj", "{8F4EA611-6DF5-4AB8-921A-4C2162236221}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipFunction", "ZipFunction\ZipFunction.csproj", "{BC692FA0-DA20-4AF2-A78E-94EC8249B3F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZipFunction", "ZipFunction\ZipFunction.csproj", "{BC692FA0-DA20-4AF2-A78E-94EC8249B3F3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8F4EA611-6DF5-4AB8-921A-4C2162236221} = {8F4EA611-6DF5-4AB8-921A-4C2162236221}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{F8EF6AE3-07C1-4BA2-B677-EDF303E9442D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipBlobStorage.Tests", "Tests\ZipBlobStorage.Tests\ZipBlobStorage.Tests.csproj", "{6348E342-3E61-4C09-9A47-C40E0AD83AED}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8F4EA611-6DF5-4AB8-921A-4C2162236221} = {8F4EA611-6DF5-4AB8-921A-4C2162236221}
 	EndProjectSection
@@ -24,9 +31,16 @@ Global
 		{BC692FA0-DA20-4AF2-A78E-94EC8249B3F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC692FA0-DA20-4AF2-A78E-94EC8249B3F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC692FA0-DA20-4AF2-A78E-94EC8249B3F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6348E342-3E61-4C09-9A47-C40E0AD83AED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6348E342-3E61-4C09-9A47-C40E0AD83AED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6348E342-3E61-4C09-9A47-C40E0AD83AED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6348E342-3E61-4C09-9A47-C40E0AD83AED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6348E342-3E61-4C09-9A47-C40E0AD83AED} = {F8EF6AE3-07C1-4BA2-B677-EDF303E9442D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DF46F13A-EB9C-46C9-8560-4F99F836C871}
