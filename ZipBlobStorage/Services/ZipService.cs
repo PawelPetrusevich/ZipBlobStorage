@@ -19,9 +19,13 @@ namespace ZipBlobStorage.Services
 
         private readonly IAzureStorageRepository _azureStorageRepository;
 
-        public ZipService(IAzureStorageRepository azureStorageRepository)
+        private readonly IFtpRepository _ftpRepository;
+
+
+        public ZipService(IAzureStorageRepository azureStorageRepository, IFtpRepository ftpRepository)
         {
             this._azureStorageRepository = azureStorageRepository;
+            _ftpRepository = ftpRepository;
         }
 
         public async Task UploadFile(RequestModel archiveModel)
@@ -54,7 +58,9 @@ namespace ZipBlobStorage.Services
 
                 var zipFileName = CreateZipFileName(archiveModel.DealershipId);
 
-                await _azureStorageRepository.UploadZipAsync(memoryStream, zipFileName, MimeMapping.GetMimeMapping(zipFileName), IN_CONTAINER_NAME).ConfigureAwait(false);
+                await _ftpRepository.UploadOnFtp(zipFileName, memoryStream);
+
+                //await _azureStorageRepository.UploadZipAsync(memoryStream, zipFileName, MimeMapping.GetMimeMapping(zipFileName), IN_CONTAINER_NAME).ConfigureAwait(false);
             }
         }
 

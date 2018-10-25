@@ -26,7 +26,7 @@ namespace ZipFunction
 
             var result = await req.Content.ReadAsAsync<RequestModel>();
 
-            var zipService = new ZipService(new AzureStorageRepository());
+            var zipService = new ZipService(new AzureStorageRepository(), new FtpRepository());
 
             await zipService.UploadFile(result).ConfigureAwait(false);
 

@@ -27,6 +27,7 @@ namespace ZipBlobStorage.Tests.ServiceTests
         [AutoMoqData]
         public void ZipService_UploadFile_ArchiveInfo_NullException(
             [Frozen] Mock<IAzureStorageRepository> _azureRepository,
+            [Frozen] Mock<IFtpRepository> _ftpRepository,
             RequestModel archiveInfo,
             ZipService zipService)
         {
@@ -39,6 +40,7 @@ namespace ZipBlobStorage.Tests.ServiceTests
         [AutoMoqData]
         public void ZipService_UploadFile_ArchiveInfo_ImageListEmptyException(
             [Frozen] Mock<IAzureStorageRepository> _azureRepository,
+            [Frozen] Mock<IFtpRepository> _ftpRepository,
             RequestModel archiveInfo,
             ZipService zipService)
         {
@@ -51,13 +53,15 @@ namespace ZipBlobStorage.Tests.ServiceTests
         [AutoMoqData]
         public async Task ZipService_UploadFile(
             [Frozen] Mock<IAzureStorageRepository> _azureRepository,
+            [Frozen] Mock<IFtpRepository> _ftpRepository,
             RequestModel archiveInfo,
             ZipService zipService)
         {
             await zipService.UploadFile(archiveInfo);
 
-            _azureRepository.Verify(mock => mock.UploadZipAsync(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            //_azureRepository.Verify(mock => mock.UploadZipAsync(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
             _azureRepository.Verify(mock => mock.LoadImageAsync(It.IsAny<string>(), It.IsAny<Stream>()), Times.Exactly(archiveInfo.Images.Length));
+            _ftpRepository.Verify(mock => mock.UploadOnFtp(It.IsAny<string>(), It.IsAny<Stream>()), Times.Once);
         }
 
 
