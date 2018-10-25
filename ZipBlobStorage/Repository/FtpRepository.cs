@@ -1,23 +1,25 @@
 ﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Net;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 
 namespace ZipBlobStorage.Repository
 {
     public class FtpRepository : IFtpRepository
     {
-        private const string FTP_URL = "ftp url";
+        private readonly Lazy<string> ftpUrl = new Lazy<string>(() => ConfigurationManager.AppSettings["FtpUrl"]);
 
-        private const string FTP_USER_NAME = "user name";
+        private readonly Lazy<string> ftpUserName = new Lazy<string>(() => ConfigurationManager.AppSettings["FtpUserName"]);
 
-        private const string FTP_PASSWORD = "user password";
+        private readonly Lazy<string> ftpUserPassword = new Lazy<string>(() => ConfigurationManager.AppSettings["FtpUserPassword"]);
 
 
         public async Task<FtpStatusCode> UploadOnFtp(string fileName, Stream fileStream)
         {
-            FtpWebRequest ftpClient = (FtpWebRequest)WebRequest.Create(FTP_URL + fileName);
-            ftpClient.Credentials = new NetworkCredential(FTP_USER_NAME, FTP_PASSWORD);
+            FtpWebRequest ftpClient = (FtpWebRequest)WebRequest.Create(ftpUrl.Value + fileName);
+            ftpClient.Credentials = new NetworkCredential(ftpUserName.Value, ftpUserPassword.Value);
             ftpClient.Method = WebRequestMethods.Ftp.UploadFile;
             ftpClient.UseBinary = true;
             ftpClient.KeepAlive = true;

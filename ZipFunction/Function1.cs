@@ -17,16 +17,17 @@ namespace ZipFunction
     public static class Function1
     {
         [FunctionName("Function1")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]HttpRequestMessage req, TraceWriter log)
+        public static async Task<HttpResponseMessage> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]HttpRequestMessage req,
+            [Inject(typeof(IZipService))]IZipService zipService,
+            TraceWriter log)
         {
             // {
             //    "DealershipId":"TODO",
             //    "Images":["download.jpg","download(1).jpg","download(2).jpg"]
             // }
-
             var result = await req.Content.ReadAsAsync<RequestModel>();
 
-            var zipService = new ZipService(new AzureStorageRepository(), new FtpRepository());
 
             await zipService.UploadFile(result).ConfigureAwait(false);
 

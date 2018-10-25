@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
@@ -12,6 +13,8 @@ namespace ZipBlobStorage.Repository
 {
     public class AzureStorageRepository : IAzureStorageRepository
     {
+        private readonly Lazy<string> containerForImagesName = new Lazy<string>(()=> ConfigurationManager.AppSettings["ContainerForImagesName"]);
+
         private readonly CloudBlobClient client;
 
         private CloudBlobContainer _container;
@@ -41,7 +44,7 @@ namespace ZipBlobStorage.Repository
 
         public async Task LoadImageAsync(string fileName, Stream entryStream)
         {
-            _container = client.GetContainerReference("images");
+            _container = client.GetContainerReference(containerForImagesName.Value);
             var blob = _container.GetBlockBlobReference(fileName);
             blob.FetchAttributes();
 

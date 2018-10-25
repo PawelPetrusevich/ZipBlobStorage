@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -13,9 +14,9 @@ namespace ZipBlobStorage.Services
 {
     public class ZipService : IZipService
     {
-        private const string IN_CONTAINER_NAME = "in-container";
+        private readonly Lazy<string> containerForInName = new Lazy<string>(() => ConfigurationManager.AppSettings["ContainerForInName"]);
 
-        private const string OUT_CONTAINER_NAME = "out-container";
+        private readonly Lazy<string> containerForOutName = new Lazy<string>(()=> ConfigurationManager.AppSettings["ContainerForOutName"]);
 
         private readonly IAzureStorageRepository _azureStorageRepository;
 
@@ -58,16 +59,16 @@ namespace ZipBlobStorage.Services
 
                 var zipFileName = CreateZipFileName(archiveModel.DealershipId);
 
-                await _ftpRepository.UploadOnFtp(zipFileName, memoryStream);
+                //await _ftpRepository.UploadOnFtp(zipFileName, memoryStream);
 
-                //await _azureStorageRepository.UploadZipAsync(memoryStream, zipFileName, MimeMapping.GetMimeMapping(zipFileName), IN_CONTAINER_NAME).ConfigureAwait(false);
+                await _azureStorageRepository.UploadZipAsync(memoryStream, zipFileName, MimeMapping.GetMimeMapping(zipFileName), containerForInName.Value).ConfigureAwait(false);
             }
         }
 
         // TODO unzip
         public async Task UnZipArchive(string zipName)
         {
-            using (var stream = _azureStorageRepository.DownloadZip(zipName, IN_CONTAINER_NAME))
+            using (var stream = _azureStorageRepository.DownloadZip(zipName, containerForInName.Value))
             {
                 using (var zipFiles = new ZipArchive(stream))
                 {
@@ -84,7 +85,7 @@ namespace ZipBlobStorage.Services
         {
             using (var entryStream = entry.Open())
             {
-                await _azureStorageRepository.UploadImageAsync(entryStream, entry.Name, MimeMapping.GetMimeMapping(entry.Name), OUT_CONTAINER_NAME).ConfigureAwait(false);
+                await _azureStorageRepository.UploadImageAsync(entryStream, entry.Name, MimeMapping.GetMimeMapping(entry.Name), containerForOutName.Value).ConfigureAwait(false);
             }
         }
 
