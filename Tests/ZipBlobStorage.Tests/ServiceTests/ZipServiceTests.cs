@@ -29,9 +29,10 @@ namespace ZipBlobStorage.Tests.ServiceTests
             [Frozen] Mock<IAzureStorageRepository> _azureRepository,
             [Frozen] Mock<IFtpRepository> _ftpRepository,
             RequestModel archiveInfo,
-            ZipService zipService)
+            ZipService zipService,
+            string filePath)
         {
-            Func<Task> action = async () => { await zipService.UploadFile(null); };
+            Func<Task> action = async () => { await zipService.UploadFile(null, filePath); };
 
             action.Should().Throw<ArgumentNullException>();
         }
@@ -42,11 +43,24 @@ namespace ZipBlobStorage.Tests.ServiceTests
             [Frozen] Mock<IAzureStorageRepository> _azureRepository,
             [Frozen] Mock<IFtpRepository> _ftpRepository,
             RequestModel archiveInfo,
-            ZipService zipService)
+            ZipService zipService,
+            string filePath)
         {
             archiveInfo.Images = null;
-            Func<Task> action = async () => { await zipService.UploadFile(archiveInfo); };
+            Func<Task> action = async () => { await zipService.UploadFile(archiveInfo, filePath); };
             action.Should().Throw<ArgumentException>();
+        }
+
+        [Test]
+        [AutoMoqData]
+        public void ZipService_UploadFile_ArchiveInfo_EmptyPathException(
+            [Frozen] Mock<IAzureStorageRepository> _azureRepository,
+            [Frozen] Mock<IFtpRepository> _ftpRepository,
+            RequestModel archiveInfo,
+            ZipService zipService)
+        {
+            Func<Task> action = async () => { await zipService.UploadFile(archiveInfo, null); };
+            action.Should().Throw<ArgumentNullException>();
         }
 
         [Test]
@@ -55,13 +69,14 @@ namespace ZipBlobStorage.Tests.ServiceTests
             [Frozen] Mock<IAzureStorageRepository> _azureRepository,
             [Frozen] Mock<IFtpRepository> _ftpRepository,
             RequestModel archiveInfo,
-            ZipService zipService)
+            ZipService zipService,
+            string filePath)
         {
-            await zipService.UploadFile(archiveInfo);
+            await zipService.UploadFile(archiveInfo, filePath);
 
-            //_azureRepository.Verify(mock => mock.UploadZipAsync(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            _azureRepository.Verify(mock => mock.UploadZipAsync(It.IsAny<FileStream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
             _azureRepository.Verify(mock => mock.LoadImageAsync(It.IsAny<string>(), It.IsAny<Stream>()), Times.Exactly(archiveInfo.Images.Length));
-            _ftpRepository.Verify(mock => mock.UploadOnFtp(It.IsAny<string>(), It.IsAny<Stream>()), Times.Once);
+            //_ftpRepository.Verify(mock => mock.UploadOnFtp(It.IsAny<string>(), It.IsAny<Stream>()), Times.Once);
         }
 
 

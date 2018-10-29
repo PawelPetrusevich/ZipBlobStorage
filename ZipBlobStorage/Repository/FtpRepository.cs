@@ -9,11 +9,20 @@ namespace ZipBlobStorage.Repository
 {
     public class FtpRepository : IFtpRepository
     {
+#if DEBUG
         private readonly Lazy<string> ftpUrl = new Lazy<string>(() => ConfigurationManager.AppSettings["FtpUrl"]);
 
         private readonly Lazy<string> ftpUserName = new Lazy<string>(() => ConfigurationManager.AppSettings["FtpUserName"]);
 
         private readonly Lazy<string> ftpUserPassword = new Lazy<string>(() => ConfigurationManager.AppSettings["FtpUserPassword"]);
+#else
+        private readonly Lazy<string> ftpUrl = new Lazy<string>(() => Environment.GetEnvironmentVariable("FtpUrl"));
+
+        private readonly Lazy<string> ftpUserName = new Lazy<string>(() => Environment.GetEnvironmentVariable("FtpUserName"));
+
+        private readonly Lazy<string> ftpUserPassword = new Lazy<string>(() => Environment.GetEnvironmentVariable("FtpUserPassword"));
+
+#endif
 
 
         public async Task<FtpStatusCode> UploadOnFtp(string fileName, Stream fileStream)

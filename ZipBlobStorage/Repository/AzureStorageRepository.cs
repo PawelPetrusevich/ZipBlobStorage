@@ -1,19 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
 
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace ZipBlobStorage.Repository
 {
     public class AzureStorageRepository : IAzureStorageRepository
     {
-        private readonly Lazy<string> containerForImagesName = new Lazy<string>(()=> ConfigurationManager.AppSettings["ContainerForImagesName"]);
+#if DEBUG
+
+        private readonly Lazy<string> containerForImagesName = new Lazy<string>(() => ConfigurationManager.AppSettings["ContainerForImagesName"]);
+
+#else
+
+        private readonly Lazy<string> containerForImagesName = new Lazy<string>(() => Environment.GetEnvironmentVariable("ContainerForImagesName"));
+
+#endif
+
 
         private readonly CloudBlobClient client;
 
@@ -21,7 +27,11 @@ namespace ZipBlobStorage.Repository
 
         public AzureStorageRepository()
         {
+#if DEBUG
             CloudStorageAccount account = CloudStorageAccount.DevelopmentStorageAccount;
+#else
+            CloudStorageAccount account = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("BlobConnectionString"));
+#endif
             client = account.CreateCloudBlobClient();
         }
 

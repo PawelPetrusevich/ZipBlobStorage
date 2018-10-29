@@ -14,9 +14,17 @@ namespace ZipBlobStorage.Services
 {
     public class ZipService : IZipService
     {
+#if DEBUG
         private readonly Lazy<string> containerForInName = new Lazy<string>(() => ConfigurationManager.AppSettings["ContainerForInName"]);
 
-        private readonly Lazy<string> containerForOutName = new Lazy<string>(()=> ConfigurationManager.AppSettings["ContainerForOutName"]);
+        private readonly Lazy<string> containerForOutName = new Lazy<string>(() => ConfigurationManager.AppSettings["ContainerForOutName"]);
+#else
+
+        private readonly Lazy<string> containerForInName = new Lazy<string>(() => Environment.GetEnvironmentVariable("ContainerForInName"));
+
+        private readonly Lazy<string> containerForOutName = new Lazy<string>(() => Environment.GetEnvironmentVariable("ContainerForOutName"));
+
+#endif
 
         private readonly IAzureStorageRepository _azureStorageRepository;
 
@@ -29,7 +37,7 @@ namespace ZipBlobStorage.Services
             _ftpRepository = ftpRepository;
         }
 
-        public async Task UploadFile(RequestModel archiveModel)
+        public async Task UploadFile(RequestModel archiveModel, string functionPhysicPath)
         {
             if (archiveModel == null)
             {
@@ -41,7 +49,12 @@ namespace ZipBlobStorage.Services
                 throw new ArgumentException($"{nameof(archiveModel)} can not be empty.");
             }
 
-            using (var memoryStream = new MemoryStream())
+            if (string.IsNullOrWhiteSpace(functionPhysicPath))
+            {
+                throw new ArgumentNullException($"{nameof(functionPhysicPath)} can not be null or empty.");
+            }
+
+            using (var memoryStream = new FileStream(functionPhysicPath, FileMode.Create))
             {
                 using (ZipArchive zip = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
                 {
@@ -63,6 +76,15 @@ namespace ZipBlobStorage.Services
 
                 await _azureStorageRepository.UploadZipAsync(memoryStream, zipFileName, MimeMapping.GetMimeMapping(zipFileName), containerForInName.Value).ConfigureAwait(false);
             }
+        }
+
+        public string CombineFilePath(string functionPhysicPath)
+        {
+            var dirInfo = new DirectoryInfo(functionPhysicPath);
+
+            dirInfo.CreateSubdirectory("TempData");
+
+            return Path.Combine(functionPhysicPath, "TempData");
         }
 
         // TODO unzip

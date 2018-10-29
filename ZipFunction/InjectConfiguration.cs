@@ -24,9 +24,9 @@ namespace ZipFunction
 
         private void RegisterServices(IServiceCollection services)
         {
-            services.AddSingleton<IFtpRepository, FtpRepository>();
-            services.AddSingleton<IAzureStorageRepository, AzureStorageRepository>();
-            services.AddSingleton<IZipService, ZipService>();
+            services.AddTransient<IFtpRepository, FtpRepository>();
+            services.AddTransient<IAzureStorageRepository, AzureStorageRepository>();
+            services.AddTransient<IZipService, ZipService>();
         }
     }
 }

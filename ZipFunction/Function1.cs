@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -20,20 +21,23 @@ namespace ZipFunction
         public static async Task<HttpResponseMessage> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]HttpRequestMessage req,
             [Inject(typeof(IZipService))]IZipService zipService,
-            TraceWriter log)
+            TraceWriter log,
+            ExecutionContext context)
         {
             // {
             //    "DealershipId":"TODO",
             //    "Images":["download.jpg","download(1).jpg","download(2).jpg"]
             // }
-            var result = await req.Content.ReadAsAsync<RequestModel>();
-
-
-            await zipService.UploadFile(result).ConfigureAwait(false);
 
             var zipName = "TODO.zip";
 
-            await zipService.UnZipArchive(zipName);
+            var result = await req.Content.ReadAsAsync<RequestModel>();
+
+            var path = Path.Combine(context.FunctionAppDirectory, zipName);
+
+            await zipService.UploadFile(result, path).ConfigureAwait(false);
+
+            //await zipService.UnZipArchive(zipName);
 
             return null;
         }

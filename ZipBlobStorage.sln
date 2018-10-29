@@ -15,6 +15,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipBlobStorage.Tests", "Tests\ZipBlobStorage.Tests\ZipBlobStorage.Tests.csproj", "{6348E342-3E61-4C09-9A47-C40E0AD83AED}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8F4EA611-6DF5-4AB8-921A-4C2162236221} = {8F4EA611-6DF5-4AB8-921A-4C2162236221}
+		{BC692FA0-DA20-4AF2-A78E-94EC8249B3F3} = {BC692FA0-DA20-4AF2-A78E-94EC8249B3F3}
 	EndProjectSection
 EndProject
 Global
