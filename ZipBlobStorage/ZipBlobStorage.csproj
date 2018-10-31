@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\RequestModel.cs" />
+    <Compile Include="Models\UnZipResponseModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\AzureStorageRepository.cs" />
     <Compile Include="Repository\FtpRepository.cs" />

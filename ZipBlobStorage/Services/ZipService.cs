@@ -87,27 +87,72 @@ namespace ZipBlobStorage.Services
             return Path.Combine(functionPhysicPath, "TempData");
         }
 
-        // TODO unzip
-        public async Task UnZipArchive(string zipName)
+        /// <summary>
+        /// Unzip zip-file from blob to blob.
+        /// </summary>
+        /// <param name="zipName">Zip-file name.</param>
+        /// <returns>Response model.</returns>
+        public async Task<IEnumerable<UnZipResponseModel>> UnZipArchive(string zipName)
         {
+            var responseModels = new List<UnZipResponseModel>();
             using (var stream = _azureStorageRepository.DownloadZip(zipName, containerForInName.Value))
             {
                 using (var zipFiles = new ZipArchive(stream))
                 {
                     foreach (var zipFilesEntry in zipFiles.Entries)
                     {
-                        await CreateFile(zipFilesEntry);
+                        var fileName = CreateImageName(zipFilesEntry);
+                        AddInfoToResponseMessage(zipFilesEntry, responseModels, fileName);
+                        await CreateFile(zipFilesEntry, fileName);
                     }
                 }
             }
+
+            return responseModels;
         }
 
-        // TODO unzip
-        private async Task CreateFile(ZipArchiveEntry entry)
+
+        /// <summary>
+        /// Add info about file to the response model.
+        /// </summary>
+        /// <param name="entry">
+        /// Zip entry.
+        /// </param>
+        /// <param name="responseModels">
+        /// Response model.
+        /// </param>
+        /// <param name="fileGuid">
+        /// The file Name.
+        /// </param>
+        private void AddInfoToResponseMessage(ZipArchiveEntry entry, List<UnZipResponseModel> responseModels, string fileName)
+        {
+            var stockId = entry.FullName.Split('_').First();
+
+            if (!responseModels.Any(x => x.StockId.Equals(stockId)))
+            {
+                responseModels.Add(new UnZipResponseModel
+                {
+                    StockId = stockId,
+                    Image = new List<string>()
+                });
+            }
+
+            responseModels.Single(x => x.StockId.Equals(stockId)).Image.Add(fileName);
+        }
+
+        // TODO file name pattern
+        public string CreateImageName(ZipArchiveEntry entry)
+        {
+            var stockId = entry.FullName.Split('_').First();
+            return $"{stockId}/{stockId}_1_{Guid.NewGuid()}";
+        }
+
+
+        private async Task CreateFile(ZipArchiveEntry entry, string fileName)
         {
             using (var entryStream = entry.Open())
             {
-                await _azureStorageRepository.UploadImageAsync(entryStream, entry.Name, MimeMapping.GetMimeMapping(entry.Name), containerForOutName.Value).ConfigureAwait(false);
+                await _azureStorageRepository.UploadImageAsync(entryStream, fileName, MimeMapping.GetMimeMapping(entry.Name), containerForOutName.Value).ConfigureAwait(false);
             }
         }
 

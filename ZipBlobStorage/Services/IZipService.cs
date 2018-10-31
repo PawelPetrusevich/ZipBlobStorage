@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using ZipBlobStorage.Models;
@@ -9,6 +10,6 @@ namespace ZipBlobStorage.Services
     {
         Task UploadFile(RequestModel archiveModel, string functionPhysicPath);
 
-        Task UnZipArchive(string zipName);
+        Task<IEnumerable<UnZipResponseModel>> UnZipArchive(string zipName);
     }
 }

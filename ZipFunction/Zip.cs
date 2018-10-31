@@ -15,9 +15,9 @@ using ZipBlobStorage.Services;
 
 namespace ZipFunction
 {
-    public static class Function1
+    public static class Zip
     {
-        [FunctionName("Function1")]
+        [FunctionName("Zip")]
         public static async Task<HttpResponseMessage> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]HttpRequestMessage req,
             [Inject(typeof(IZipService))]IZipService zipService,
