@@ -8,9 +8,9 @@ namespace ZipBlobStorage.Repository
         Task UploadZipAsync(Stream stream, string fileName, string mimeType, string containerName);
 
         Task UploadImageAsync(Stream stream, string fileName, string mimeType, string containerName);
-        
+
         Task LoadImageAsync(string fileName, Stream entryStream);
 
-        Stream DownloadZip(string fileName, string containerName);
+        void DownloadZip(string fileName, string containerName, Stream stream);
     }
 }

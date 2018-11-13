@@ -61,13 +61,11 @@ namespace ZipBlobStorage.Repository
             await blob.DownloadToStreamAsync(entryStream);
         }
 
-        public Stream DownloadZip(string fileName, string containerName)
+        public void DownloadZip(string fileName, string containerName, Stream stream)
         {
             _container = client.GetContainerReference(containerName);
             var blob = _container.GetBlockBlobReference(fileName);
-            var resultStream = new MemoryStream();
-            blob.DownloadToStream(resultStream);
-            return resultStream;
+            blob.DownloadToStream(stream);
         }
 
         private CloudBlockBlob PrepareBlob(string fileName, string mimeType)

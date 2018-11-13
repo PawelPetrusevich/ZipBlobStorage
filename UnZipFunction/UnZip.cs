@@ -21,8 +21,6 @@ namespace UnZipFunction
             TraceWriter log,
             ExecutionContext context)
         {
-            log.Info("C# HTTP trigger function processed a request.");
-
             string filePath = req.GetQueryNameValuePairs()
                 .FirstOrDefault(q => string.Compare(q.Key, "fileName", true) == 0)
                 .Value;

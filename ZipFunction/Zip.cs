@@ -29,15 +29,12 @@ namespace ZipFunction
             //    "Images":["download.jpg","download(1).jpg","download(2).jpg"]
             // }
 
-            var zipName = "TODO.zip";
 
             var result = await req.Content.ReadAsAsync<RequestModel>();
 
-            var path = Path.Combine(context.FunctionAppDirectory, zipName);
+            var path = Path.Combine(context.FunctionAppDirectory, result.DealershipId);
 
             await zipService.UploadFile(result, path).ConfigureAwait(false);
-
-            //await zipService.UnZipArchive(zipName);
 
             return null;
         }

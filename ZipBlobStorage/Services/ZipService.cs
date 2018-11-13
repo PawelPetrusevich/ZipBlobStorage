@@ -78,15 +78,6 @@ namespace ZipBlobStorage.Services
             }
         }
 
-        public string CombineFilePath(string functionPhysicPath)
-        {
-            var dirInfo = new DirectoryInfo(functionPhysicPath);
-
-            dirInfo.CreateSubdirectory("TempData");
-
-            return Path.Combine(functionPhysicPath, "TempData");
-        }
-
         /// <summary>
         /// Unzip zip-file from blob to blob.
         /// </summary>
@@ -95,14 +86,16 @@ namespace ZipBlobStorage.Services
         public async Task<IEnumerable<UnZipResponseModel>> UnZipArchive(string zipName)
         {
             var responseModels = new List<UnZipResponseModel>();
-            using (var stream = _azureStorageRepository.DownloadZip(zipName, containerForInName.Value))
+            using (var stream = new MemoryStream())
             {
+                _azureStorageRepository.DownloadZip(zipName, containerForInName.Value, stream);
                 using (var zipFiles = new ZipArchive(stream))
                 {
                     foreach (var zipFilesEntry in zipFiles.Entries)
                     {
-                        var fileName = CreateImageName(zipFilesEntry);
-                        AddInfoToResponseMessage(zipFilesEntry, responseModels, fileName);
+                        var stockId = zipFilesEntry.FullName.Split('_').First();
+                        var fileName = CreateImageName(zipFilesEntry, stockId);
+                        AddInfoToResponseMessage(responseModels, fileName, stockId);
                         await CreateFile(zipFilesEntry, fileName);
                     }
                 }
@@ -124,10 +117,8 @@ namespace ZipBlobStorage.Services
         /// <param name="fileGuid">
         /// The file Name.
         /// </param>
-        private void AddInfoToResponseMessage(ZipArchiveEntry entry, List<UnZipResponseModel> responseModels, string fileName)
+        private void AddInfoToResponseMessage(List<UnZipResponseModel> responseModels, string fileName, string stockId)
         {
-            var stockId = entry.FullName.Split('_').First();
-
             if (!responseModels.Any(x => x.StockId.Equals(stockId)))
             {
                 responseModels.Add(new UnZipResponseModel
@@ -141,10 +132,9 @@ namespace ZipBlobStorage.Services
         }
 
         // TODO file name pattern
-        public string CreateImageName(ZipArchiveEntry entry)
+        public string CreateImageName(ZipArchiveEntry entry, string stockId)
         {
-            var stockId = entry.FullName.Split('_').First();
-            return $"{stockId}/{stockId}_1_{Guid.NewGuid()}";
+            return Path.Combine(stockId, Path.GetFileName(entry.FullName));
         }
 
 
@@ -159,7 +149,7 @@ namespace ZipBlobStorage.Services
 
         private string CreateFileName(string fileName)
         {
-            return $"{fileName.Split('.').First()}/{Guid.NewGuid()}.{fileName.Split('.').Last()}";
+            return $"{Path.GetFileNameWithoutExtension(fileName)}/{Guid.NewGuid()}.{Path.GetExtension(fileName)}";
         }
 
         private string CreateZipFileName(string dealershipId)
