@@ -54,7 +54,7 @@ namespace ZipBlobStorage.Services
                 throw new ArgumentNullException($"{nameof(functionPhysicPath)} can not be null or empty.");
             }
 
-            using (var memoryStream = new FileStream(functionPhysicPath, FileMode.Create))
+            using (var memoryStream = new FileStream(functionPhysicPath, FileMode.OpenOrCreate))
             {
                 using (ZipArchive zip = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
                 {
@@ -72,9 +72,9 @@ namespace ZipBlobStorage.Services
 
                 var zipFileName = CreateZipFileName(archiveModel.DealershipId);
 
-                //await _ftpRepository.UploadOnFtp(zipFileName, memoryStream);
+                await _ftpRepository.UploadOnFtp(zipFileName, memoryStream);
 
-                await _azureStorageRepository.UploadZipAsync(memoryStream, zipFileName, MimeMapping.GetMimeMapping(zipFileName), containerForInName.Value).ConfigureAwait(false);
+                //await _azureStorageRepository.UploadZipAsync(memoryStream, zipFileName, MimeMapping.GetMimeMapping(zipFileName), containerForInName.Value).ConfigureAwait(false);
             }
         }
 
